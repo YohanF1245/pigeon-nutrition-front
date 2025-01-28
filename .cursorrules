@@ -1,0 +1,408 @@
+tu es un expert en programmation javascript
+tu es un expert avec le framework svelte
+le projet est un un site web de gestion de repas et de produits alimentaires
+le projet permet de gérer les repas et les produits alimentaires
+le projet permet de gérer des stocks d'aliments
+le projets permet de gérer une liste de courses a partir d'aliments taggés en stock bas
+le projet utilise la charte graphique ci dessous
+le projet utilise tailwindcss
+le projet est orienté mobile first
+
+# regles des routes pour le front :
+
+### Authentification
+- POST /api/auth/register - Inscription
+- POST /api/auth/login - Connexion
+- GET /api/auth/profile - Obtenir le profil
+- PUT /api/auth/profile - Modifier le profil
+- POST /api/auth/reset-password - Réinitialiser le mot de passe
+
+### Produits
+- GET /api/produits - Liste des produits
+- POST /api/produits - Créer un produit
+- GET /api/produits/:id - Détails d'un produit
+- PUT /api/produits/:id - Modifier un produit
+- DELETE /api/produits/:id - Supprimer un produit
+- PATCH /api/produits/:id/stock - Mettre à jour le stock
+- GET /api/produits/stocks/bas - Vérifier les stocks bas
+- GET /api/produits/:id/valeurs-nutritionnelles-tranche - Valeurs nutritionnelles par tranche
+
+### Repas
+- GET /api/repas - Liste des repas
+- POST /api/repas - Créer un repas
+- GET /api/repas/:id - Détails d'un repas
+- PUT /api/repas/:id - Modifier un repas
+- DELETE /api/repas/:id - Supprimer un repas
+- POST /api/repas/:id/compositions - Ajouter des produits au repas
+- PUT /api/repas/:id/compositions - Modifier les produits du repas
+- DELETE /api/repas/:id/compositions - Supprimer des produits du repas
+- GET /api/repas/:id/statistiques - Obtenir les statistiques nutritionnelles
+- GET /api/repas/utilisateur/:id/rapport - Obtenir le rapport nutritionnel
+
+### Dashboard
+- GET /api/dashboard/statistiques-journalieres - Statistiques journalières
+- GET /api/dashboard/apports-nutritionnels - Apports nutritionnels sur une période
+- GET /api/dashboard/stocks-bas - Liste des produits en stock bas
+- GET /api/dashboard/tendances - Tendances de consommation
+- POST /api/dashboard/rapport - Générer un rapport nutritionnel
+
+# regles des formats de données : 
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UniteStock {
+  UNITE
+  POURCENTAGE
+  TRANCHE
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model Utilisateur {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  mot_de_passe      String
+  nom               String
+  prenom            String
+  role              Role      @default(USER)
+  date_creation     DateTime  @default(now())
+  date_modification DateTime  @updatedAt
+  produits          Produit[]
+  repas             Repas[]
+  rapports          RapportNutritionnel[]
+
+  @@map("utilisateurs")
+}
+
+model Produit {
+  id                String            @id @default(uuid())
+  utilisateur_id    String
+  utilisateur       Utilisateur       @relation(fields: [utilisateur_id], references: [id])
+  nom               String
+  code_barre        String?
+  calories          Float
+  matieres_grasses  Float
+  glucides          Float
+  proteines         Float
+  sel               Float
+  stock             Float
+  unite_stock       UniteStock       @default(UNITE)
+  prix_unitaire     Float
+  stock_limite      Float
+  date_creation     DateTime         @default(now())
+  date_modification DateTime         @updatedAt
+  compositions      CompositionRepas[]
+
+  @@unique([utilisateur_id, code_barre])
+  @@unique([utilisateur_id, nom])
+  @@map("produits")
+}
+
+model Repas {
+  id                String            @id @default(uuid())
+  utilisateur_id    String
+  utilisateur       Utilisateur       @relation(fields: [utilisateur_id], references: [id])
+  nom               String
+  date              DateTime
+  description       String?
+  date_creation     DateTime         @default(now())
+  date_modification DateTime         @updatedAt
+  compositions      CompositionRepas[]
+  statistiques      StatistiqueRepas[]
+
+  @@unique([id, utilisateur_id], name: "id_utilisateur_id")
+  @@map("repas")
+}
+
+model CompositionRepas {
+  id          String   @id @default(uuid())
+  repas_id    String
+  repas       Repas    @relation(fields: [repas_id], references: [id])
+  produit_id  String
+  produit     Produit  @relation(fields: [produit_id], references: [id])
+  quantite    Float
+
+  @@map("composition_repas")
+}
+
+model StatistiqueRepas {
+  id                String    @id @default(uuid())
+  repas_id          String
+  repas             Repas     @relation(fields: [repas_id], references: [id])
+  calories_total    Float
+  glucides_total    Float
+  proteines_total   Float
+  lipides_total     Float
+  sel_total         Float
+  date_calcul       DateTime  @default(now())
+
+  @@map("statistiques_repas")
+}
+
+model RapportNutritionnel {
+  id                String    @id @default(uuid())
+  utilisateur_id    String
+  utilisateur       Utilisateur @relation(fields: [utilisateur_id], references: [id])
+  date_debut        DateTime
+  date_fin          DateTime
+  calories_moyenne  Float
+  glucides_moyenne  Float
+  proteines_moyenne Float
+  lipides_moyenne   Float
+  sel_moyenne       Float
+  date_generation   DateTime  @default(now())
+
+  @@map("rapports_nutritionnels")
+}
+
+# charte graphique
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pigeon Software - Consulting Numérique & Développement</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&family=Roboto+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    <style>
+        .blue { color: #1A73E8; }
+        .audiowide { font-family: 'Audiowide', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
+        .space-grotesk { font-family: 'Space Grotesk', sans-serif; }
+        .roboto-mono { font-family: 'Roboto Mono', monospace; }
+        .dm-sans { font-family: 'DM Sans', sans-serif; }
+        .color-block {
+            width: 100%;
+            height: 80px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        .brandeis-blue { background-color: #1a73e8; }
+        .columbia-blue { background-color: #bfdbf7; }
+        .lavender-web { background-color: #e1e5f2; }
+        .rose-taupe { background-color: #785964; }
+        .onyx { background-color: #454545; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <img src="img/pigeon-software-logo.webp" alt="Pigeon Software Logo" class="h-12">
+                    <span class="audiowide blue text-xl">Pigeon Software</span>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#services" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">Services</a>
+                    <a href="#logo" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">Logo</a>
+                    <a href="#identite" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">Identité</a>
+                    <a href="#typographie" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">Typographie</a>
+                    <a href="./site-vitrine.html" class="text-gray-600 hover:text-blue-600 transition-colors duration-200">Site Vitrine</a>
+
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-16">
+        <div class="text-center mb-16">
+            <h1 class="audiowide blue text-4xl mb-4">Solutions Numériques sur Mesure</h1>
+            <p class="text-gray-600 text-xl">Expertise en Consulting & Développement d'Applications</p>
+        </div>
+
+        <div id="services" class="grid md:grid-cols-2 gap-12 mt-12 scroll-mt-24">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <h2 class="audiowide blue text-2xl mb-4">Consulting Numérique</h2>
+                <p class="text-gray-600">Accompagnement stratégique pour votre transformation digitale. Expertise technique et conseils personnalisés pour optimiser vos processus.</p>
+            </div>
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <h2 class="audiowide blue text-2xl mb-4">Développement d'Applications</h2>
+                <p class="text-gray-600">Création d'applications web et mobiles sur mesure. Solutions innovantes adaptées à vos besoins spécifiques.</p>
+            </div>
+        </div>
+
+        <div id="logo" class="mt-20 scroll-mt-24">
+            <h2 class="audiowide blue text-3xl mb-8 text-center">Notre Logo</h2>
+            <div class="bg-white p-8 rounded-lg shadow-md text-center">
+                <img src="img/pigeon-software-logo.webp" alt="Pigeon Software Logo" class="h-48 mx-auto mb-6">
+                <p class="text-gray-700 leading-relaxed max-w-2xl mx-auto">Notre logo représente l'alliance entre l'innovation technologique et la simplicité. Le pigeon, symbole de communication et d'adaptabilité, est stylisé de manière moderne pour refléter notre approche : des solutions techniques avancées rendues accessibles et efficaces.</p>
+            </div>
+        </div>
+
+        <div id="identite" class="mt-20 scroll-mt-24">
+            <h2 class="audiowide blue text-3xl mb-8 text-center">Notre Identité Visuelle</h2>
+            <div class="grid md:grid-cols-5 gap-6">
+                <div>
+                    <div class="color-block brandeis-blue"></div>
+                    <p class="font-medium">Brandeis Blue</p>
+                    <p class="text-sm text-gray-600">#1A73E8</p>
+                    <p class="text-sm text-gray-500">Couleur principale</p>
+                </div>
+                <div>
+                    <div class="color-block columbia-blue"></div>
+                    <p class="font-medium">Columbia Blue</p>
+                    <p class="text-sm text-gray-600">#BFDBF7</p>
+                    <p class="text-sm text-gray-500">Accent clair</p>
+                </div>
+                <div>
+                    <div class="color-block lavender-web"></div>
+                    <p class="font-medium">Lavender Web</p>
+                    <p class="text-sm text-gray-600">#E1E5F2</p>
+                    <p class="text-sm text-gray-500">Fond subtil</p>
+                </div>
+                <div>
+                    <div class="color-block rose-taupe"></div>
+                    <p class="font-medium">Rose Taupe</p>
+                    <p class="text-sm text-gray-600">#785964</p>
+                    <p class="text-sm text-gray-500">Accent chaleureux</p>
+                </div>
+                <div>
+                    <div class="color-block onyx"></div>
+                    <p class="font-medium">Onyx</p>
+                    <p class="text-sm text-gray-600">#454545</p>
+                    <p class="text-sm text-gray-500">Texte et détails</p>
+                </div>
+            </div>
+            <div class="mt-8 bg-white p-8 rounded-lg shadow-md">
+                <p class="text-gray-700 leading-relaxed">Notre palette de couleurs reflète notre identité professionnelle et innovante. Le Brandeis Blue, notre couleur signature, symbolise la confiance et l'innovation. Les tons complémentaires créent une harmonie visuelle moderne et équilibrée, soutenant notre engagement envers l'excellence et la créativité dans le développement numérique.</p>
+            </div>
+        </div>
+
+        <div id="typographie" class="mt-20 scroll-mt-24">
+            <h2 class="audiowide blue text-3xl mb-8 text-center">Notre Typographie</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="audiowide text-2xl mb-4">Audiowide</h3>
+                    <p class="text-gray-600 mb-4">Police principale pour les titres et éléments d'accent</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="audiowide text-4xl">Aa Bb Cc</p>
+                            <p class="audiowide text-xl mt-2">1234567890</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Utilisée pour :</p>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Titres principaux</li>
+                                <li>Logo et marque</li>
+                                <li>Éléments d'accent</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="text-2xl mb-4 font-medium">Inter</h3>
+                    <p class="text-gray-600 mb-4">Police secondaire moderne et lisible</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-4xl font-medium">Aa Bb Cc</p>
+                            <p class="text-xl mt-2">1234567890</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Utilisée pour :</p>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Corps de texte</li>
+                                <li>Paragraphes</li>
+                                <li>Interface utilisateur</li>
+                                <li>Excellente lisibilité sur écran</li>
+                            </ul>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm">Regular - <span class="font-normal">Le développement numérique sur mesure</span></p>
+                            <p class="text-sm">Medium - <span class="font-medium">Le développement numérique sur mesure</span></p>
+                            <p class="text-sm">SemiBold - <span class="font-semibold">Le développement numérique sur mesure</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 mt-8">
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="space-grotesk text-2xl mb-4 font-medium">Space Grotesk</h3>
+                    <p class="text-gray-600 mb-4">Police alternative moderne</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="space-grotesk text-4xl font-medium">Aa Bb Cc</p>
+                            <p class="space-grotesk text-xl mt-2">1234567890</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Parfaite pour :</p>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Sous-titres</li>
+                                <li>Éléments interactifs</li>
+                                <li>Données techniques</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="roboto-mono text-2xl mb-4 font-medium">Roboto Mono</h3>
+                    <p class="text-gray-600 mb-4">Police monospace technique</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="roboto-mono text-4xl font-medium">Aa Bb Cc</p>
+                            <p class="roboto-mono text-xl mt-2">1234567890</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Idéale pour :</p>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Code et snippets</li>
+                                <li>Données techniques</li>
+                                <li>Documentation</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <h3 class="dm-sans text-2xl mb-4 font-medium">DM Sans</h3>
+                    <p class="text-gray-600 mb-4">Police alternative moderne</p>
+                    <div class="space-y-4">
+                        <div>
+                            <p class="dm-sans text-4xl font-medium">Aa Bb Cc</p>
+                            <p class="dm-sans text-xl mt-2">1234567890</p>
+                        </div>
+                        <div class="mt-4">
+                            <p class="text-sm text-gray-500">Adaptée pour :</p>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li>Interfaces modernes</li>
+                                <li>Contenu dynamique</li>
+                                <li>Textes courts</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-16">
+        <div class="max-w-6xl mx-auto px-4 py-8">
+            <div class="flex justify-between items-center">
+                <div class="audiowide">
+                    <span class="blue">Pigeon</span> Software
+                </div>
+                <div class="text-gray-400">
+                    © 2024 Pigeon Software. Tous droits réservés.
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 
