@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Importation des polices */
+@import url('https://fonts.googleapis.com/css2?family=Audiowide&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&family=Roboto+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap');
+
+/* Variables CSS globales */
+:root {
+  --color-brandeis-blue: #1a73e8;
+  --color-columbia-blue: #bfdbf7;
+  --color-lavender-web: #e1e5f2;
+  --color-rose-taupe: #785964;
+  --color-onyx: #454545;
+}
+
+/* Styles de base */
+body {
+  @apply font-inter text-onyx bg-gray-50;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-audiowide text-brandeis-blue;
+}
+
+/* Classes utilitaires personnalisées */
+@layer components {
+  .btn-primary {
+    @apply px-4 py-2 bg-brandeis-blue text-white rounded-md hover:bg-opacity-90 transition-colors duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-4 py-2 bg-columbia-blue text-brandeis-blue rounded-md hover:bg-opacity-90 transition-colors duration-200;
+  }
+
+  .btn-danger {
+    @apply px-4 py-2 bg-rose-taupe text-white rounded-md hover:bg-opacity-90 transition-colors duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6;
+  }
+
+  .input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-brandeis-blue focus:border-transparent;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-onyx mb-1;
+  }
+} 
