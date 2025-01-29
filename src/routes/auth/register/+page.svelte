@@ -22,18 +22,17 @@
         }
 
         try {
-            const userData = {
+            const result = await auth.register({
                 email,
-                mot_de_passe: password,
+                password,
                 nom,
                 prenom
-            };
-
-            await auth.register(userData);
-            const success = await auth.login({ email, password });
+            });
             
-            if (success) {
-                goto('/dashboard');
+            if (result.success) {
+                goto('/auth/login?registered=true');
+            } else {
+                error = result.error;
             }
         } catch (e) {
             error = e.message || 'Une erreur est survenue lors de l\'inscription';
