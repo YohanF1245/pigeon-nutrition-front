@@ -10,18 +10,20 @@ export const nodes = [
 	() => import('./nodes/4'),
 	() => import('./nodes/5'),
 	() => import('./nodes/6'),
-	() => import('./nodes/7')
+	() => import('./nodes/7'),
+	() => import('./nodes/8')
 ];
 
 export const server_loads = [];
 
 export const dictionary = {
-		"/auth/login": [2],
-		"/auth/register": [3],
-		"/produits": [4],
-		"/produits/nouveau": [7],
-		"/produits/[id]": [5],
-		"/produits/[id]/stock": [6]
+		"/": [2],
+		"/auth/login": [3],
+		"/auth/register": [4],
+		"/produits": [5],
+		"/produits/nouveau": [8],
+		"/produits/[id]": [6],
+		"/produits/[id]/stock": [7]
 	};
 
 export const hooks = {
