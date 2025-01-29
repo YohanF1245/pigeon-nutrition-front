@@ -1,26 +1,24 @@
 <script>
-    import api from '$lib/services/api';
+    import { auth } from '$lib/stores/auth';
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
 
-    let data = [];
-
-    onMount(async () => {
-        try {
-            const response = await api.get('/api/produits');
-            data = response.data;
-        } catch (error) {
-            console.error('Erreur lors de la récupération des données:', error);
+    onMount(() => {
+        if ($auth.isAuthenticated) {
+            goto('/dashboard');
+        } else {
+            goto('/auth/login');
         }
     });
 </script>
 
-<h1>Bienvenue sur FoodManager</h1>
-{#if data.length > 0}
-    <ul>
-        {#each data as item}
-            <li>{item.nom}</li>
-        {/each}
-    </ul>
-{:else}
-    <p>Chargement des données...</p>
-{/if} 
+<div class="flex items-center justify-center min-h-screen">
+    <div class="text-center">
+        <h1 class="text-3xl font-audiowide text-brandeis-blue mb-4">
+            FoodManager
+        </h1>
+        <p class="text-gray-600">
+            Chargement...
+        </p>
+    </div>
+</div> 
