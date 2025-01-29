@@ -6,11 +6,11 @@ const publicRoutes = ['/auth/login', '/auth/register'];
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
-    const authStore = get(auth);
     const path = event.url.pathname;
+    const authStore = get(auth);
 
     // Si l'utilisateur n'est pas authentifié et essaie d'accéder à une route protégée
-    if (!authStore.isAuthenticated && !publicRoutes.includes(path) && !path.startsWith('/api')) {
+    if (!authStore.isAuthenticated && !publicRoutes.includes(path)) {
         throw redirect(303, '/auth/login');
     }
 
