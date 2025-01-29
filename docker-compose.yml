@@ -7,9 +7,16 @@ services:
       - "3001:3000"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:3000/api
-      - ORIGIN=http://localhost:3000
+      - VITE_API_URL=http://localhost:3001/api
+      - ORIGIN=http://localhost:3001
+      - BACKEND_URL=http://pigeon-nutrition-back-backend-1:3000
     volumes:
       - .:/app
       - /app/node_modules
     command: npm run dev
+    networks:
+      - pigeon-nutrition-back_app-network
+
+networks:
+  pigeon-nutrition-back_app-network:
+    external: true
