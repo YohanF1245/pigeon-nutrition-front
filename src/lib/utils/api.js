@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 async function fetchWithAuth(endpoint, options = {}) {
     const token = localStorage.getItem('token');
@@ -8,7 +8,9 @@ async function fetchWithAuth(endpoint, options = {}) {
         ...(token && { 'Authorization': `Bearer ${token}` })
     };
 
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+    const url = `${API_BASE_URL}${endpoint}`;
+    console.log('Fetching:', url);
+    console.log('Options:', {
         ...options,
         headers: {
             ...defaultHeaders,
@@ -16,12 +18,27 @@ async function fetchWithAuth(endpoint, options = {}) {
         }
     });
 
-    if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Une erreur est survenue');
-    }
+    try {
+        const response = await fetch(url, {
+            ...options,
+            headers: {
+                ...defaultHeaders,
+                ...options.headers
+            }
+        });
 
-    return response.json();
+        const data = await response.json();
+        console.log('Response:', data);
+
+        if (!response.ok) {
+            throw new Error(data.message || data.errors?.[0]?.msg || 'Une erreur est survenue');
+        }
+
+        return data;
+    } catch (error) {
+        console.error('API Error:', error);
+        throw error;
+    }
 }
 
 export const api = {
