@@ -11,8 +11,9 @@ export default defineConfig({
         },
         proxy: {
             '/api': {
-                target: process.env.BACKEND_URL || 'http://pigeon-nutrition-back-backend-1:3000',
+                target: 'http://pigeon-nutrition-api-dev:3000',
                 changeOrigin: true,
+                secure: false,
                 rewrite: (path) => path.replace(/^\/api/, '')
             }
         }
