@@ -1,0 +1,1 @@
+export const API_URL = '/api';  // Utilisons le chemin relatif pour que le proxy fonctionne 
