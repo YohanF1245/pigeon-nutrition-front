@@ -9,13 +9,14 @@ async function fetchWithAuth(endpoint, options = {}) {
     };
 
     const url = `${API_BASE_URL}${endpoint}`;
-    console.log('Fetching:', url);
-    console.log('Options:', {
-        ...options,
+    console.log('🚀 Request:', {
+        url,
+        method: options.method || 'GET',
         headers: {
             ...defaultHeaders,
             ...options.headers
-        }
+        },
+        body: options.body
     });
 
     try {
@@ -27,8 +28,20 @@ async function fetchWithAuth(endpoint, options = {}) {
             }
         });
 
-        const data = await response.json();
-        console.log('Response:', data);
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json();
+        } else {
+            const text = await response.text();
+            console.error('Response not JSON:', text);
+            throw new Error('Réponse invalide du serveur');
+        }
+
+        console.log('📥 Response:', {
+            status: response.status,
+            data
+        });
 
         if (!response.ok) {
             throw new Error(data.message || data.errors?.[0]?.msg || 'Une erreur est survenue');
@@ -36,7 +49,7 @@ async function fetchWithAuth(endpoint, options = {}) {
 
         return data;
     } catch (error) {
-        console.error('API Error:', error);
+        console.error('❌ API Error:', error);
         throw error;
     }
 }
