@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
 import { api } from '$lib/utils/api';
+import { browser } from '$app/environment';
 
 function createAuthStore() {
     const { subscribe, set, update } = writable({
@@ -8,25 +9,49 @@ function createAuthStore() {
         isLoading: true
     });
 
+    // Initialisation du store avec les données du localStorage
+    if (browser) {
+        const token = localStorage.getItem('token');
+        if (token) {
+            checkAuth();
+        } else {
+            update(state => ({ ...state, isLoading: false }));
+        }
+    }
+
+    async function checkAuth() {
+        try {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                set({ user: null, isAuthenticated: false, isLoading: false });
+                return false;
+            }
+            const user = await api.auth.getProfile();
+            set({ user, isAuthenticated: true, isLoading: false });
+            return true;
+        } catch (error) {
+            console.error('Erreur de vérification auth:', error);
+            localStorage.removeItem('token');
+            set({ user: null, isAuthenticated: false, isLoading: false });
+            return false;
+        }
+    }
+
     return {
         subscribe,
         login: async ({ email, password }) => {
             try {
-                console.log('Tentative de connexion avec:', { email, mot_de_passe: password });
                 const response = await api.auth.login({ 
                     email, 
                     mot_de_passe: password 
                 });
-                console.log('Réponse de connexion:', response);
                 
                 localStorage.setItem('token', response.token);
                 const user = await api.auth.getProfile();
-                console.log('Profil utilisateur:', user);
-                
                 set({ user, isAuthenticated: true, isLoading: false });
                 return { success: true };
             } catch (error) {
-                console.error('Erreur de connexion détaillée:', error);
+                console.error('Erreur de connexion:', error);
                 return { 
                     success: false, 
                     error: error.message || 'Identifiants invalides'
@@ -54,23 +79,7 @@ function createAuthStore() {
             localStorage.removeItem('token');
             set({ user: null, isAuthenticated: false, isLoading: false });
         },
-        checkAuth: async () => {
-            try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    set({ user: null, isAuthenticated: false, isLoading: false });
-                    return false;
-                }
-                const user = await api.auth.getProfile();
-                set({ user, isAuthenticated: true, isLoading: false });
-                return true;
-            } catch (error) {
-                console.error('Erreur de vérification auth:', error);
-                localStorage.removeItem('token');
-                set({ user: null, isAuthenticated: false, isLoading: false });
-                return false;
-            }
-        }
+        checkAuth
     };
 }
 
