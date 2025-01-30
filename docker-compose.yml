@@ -4,10 +4,10 @@ services:
   frontend:
     build: .
     ports:
-      - "3001:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=development
-      - VITE_API_URL=http://localhost:3001/api
+      - VITE_API_URL=/api
       - ORIGIN=http://localhost:3001
     volumes:
       - .:/app
@@ -15,9 +15,7 @@ services:
     command: npm run dev
     networks:
       - pigeon-nutrition-back_app-network
- 
 
 networks:
   pigeon-nutrition-back_app-network:
-    name: pigeon-nutrition-back_app-network
     external: true
