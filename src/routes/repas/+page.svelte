@@ -20,9 +20,9 @@
     async function loadRepas() {
         try {
             await repas.loadRepas();
-            console.log('Store state:', $repas); // Debug log
+            console.log('Store state:', $repas);
         } catch (e) {
-            console.error('Error loading repas:', e); // Debug log
+            console.error('Error loading repas:', e);
             error = "Erreur lors du chargement des repas";
         }
     }
@@ -43,15 +43,13 @@
     }
 
     $: {
-        console.log('Filtered repas input:', $repas.items); // Debug log
-        if ($repas && Array.isArray($repas.items)) {
+        if ($repas && $repas.items) {
             filteredRepas = $repas.items.filter(r => 
-                r.nom.toLowerCase().includes(searchQuery.toLowerCase())
+                r && r.nom && r.nom.toLowerCase().includes((searchQuery || '').toLowerCase())
             );
         } else {
             filteredRepas = [];
         }
-        console.log('Filtered repas output:', filteredRepas); // Debug log
     }
 </script>
 
