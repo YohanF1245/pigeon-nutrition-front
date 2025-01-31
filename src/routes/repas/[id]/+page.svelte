@@ -3,6 +3,7 @@
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
     import { repas } from '$lib/stores/repas';
+    import { produits } from '$lib/stores/produits';
     import RepasForm from '$lib/components/repas/RepasForm.svelte';
     import Toast from '$lib/components/common/Toast.svelte';
 
@@ -15,8 +16,21 @@
             loading = true;
             const id = $page.params.id;
             console.log('Loading repas for edit:', id);
+            
+            // Charger les produits d'abord
+            await produits.loadProduits();
+            
+            // Puis charger le repas
             currentRepas = await repas.getRepas(id);
             console.log('Loaded repas for edit:', currentRepas);
+            
+            if (!currentRepas.compositions) {
+                currentRepas.compositions = [];
+            }
+            
+            // Assurer que chaque composition a son produit
+            currentRepas.compositions = currentRepas.compositions.filter(comp => comp.produit);
+            
         } catch (e) {
             console.error('Error loading repas for edit:', e);
             error = e.message || 'Erreur lors du chargement du repas';
