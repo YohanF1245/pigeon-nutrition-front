@@ -12,15 +12,19 @@
         error = '';
 
         try {
-            console.log('Données du formulaire:', event.detail);
+            console.log('Creating repas with data:', event.detail);
             const newRepas = await repas.addRepas(event.detail);
+            console.log('Created repas:', newRepas);
+            
             if (newRepas) {
+                // Recharger la liste des repas avant de naviguer
+                await repas.loadRepas();
                 await goto('/repas');
             } else {
                 throw new Error('Erreur lors de la création du repas');
             }
         } catch (e) {
-            console.error('Erreur création:', e);
+            console.error('Error creating repas:', e);
             error = e.message || 'Erreur lors de la création du repas';
             loading = false;
         }
