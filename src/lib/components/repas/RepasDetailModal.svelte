@@ -14,7 +14,7 @@
     }
 
     // Calcul des totaux
-    $: totals = (repas.compositions || []).reduce((acc: any, comp: any) => {
+    $: totals = (repas.compositions || []).reduce((acc, comp) => {
         const ratio = comp.quantite / 100;
         return {
             calories: acc.calories + (comp.produit?.calories || 0) * ratio,
