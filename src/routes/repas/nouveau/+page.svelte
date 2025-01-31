@@ -12,19 +12,18 @@
         error = '';
 
         try {
-            console.log('Creating repas with data:', event.detail);
+            console.log('Form submitted with data:', event.detail);
             const newRepas = await repas.addRepas(event.detail);
-            console.log('Created repas:', newRepas);
+            console.log('Repas created:', newRepas);
             
-            if (newRepas) {
-                // Recharger la liste des repas avant de naviguer
-                await repas.loadRepas();
-                await goto('/repas');
-            } else {
-                throw new Error('Erreur lors de la création du repas');
-            }
+            // Recharger explicitement la liste des repas
+            console.log('Reloading repas list...');
+            await repas.loadRepas();
+            console.log('Repas list reloaded');
+            
+            await goto('/repas');
         } catch (e) {
-            console.error('Error creating repas:', e);
+            console.error('Error in handleSubmit:', e);
             error = e.message || 'Erreur lors de la création du repas';
             loading = false;
         }
