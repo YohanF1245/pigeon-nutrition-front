@@ -2,17 +2,19 @@
     import { createEventDispatcher } from 'svelte';
     import { format } from 'date-fns';
     import { fr } from 'date-fns/locale';
+    import RepasDetailModal from './RepasDetailModal.svelte';
 
     export let repas;
     
     const dispatch = createEventDispatcher();
+    let showModal = false;
 
     $: formattedDate = format(new Date(repas.date), 'PPP', { locale: fr });
 </script>
 
 <div class="bg-white shadow rounded-lg p-4 hover:shadow-lg transition-shadow duration-200">
     <div class="flex justify-between items-start mb-4">
-        <div>
+        <div class="cursor-pointer" on:click={() => showModal = true}>
             <h3 class="text-lg font-medium text-onyx">{repas.nom}</h3>
             <p class="text-sm text-gray-500">{formattedDate}</p>
             {#if repas.description}
@@ -70,4 +72,11 @@
             </div>
         </div>
     {/if}
-</div> 
+</div>
+
+{#if showModal}
+    <RepasDetailModal 
+        {repas} 
+        on:close={() => showModal = false}
+    />
+{/if} 
