@@ -35,11 +35,20 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 const response = await api.repas.getAll();
-                // S'assurer que la réponse est un tableau et que chaque élément a les propriétés requises
-                const items = Array.isArray(response) ? response.filter(r => r && r.nom) : [];
+                console.log('Store loadRepas response:', response);
+
+                // Vérification de la réponse
+                if (!response) {
+                    throw new Error('Aucune donnée reçue de l\'API');
+                }
+
+                // S'assurer que la réponse est un tableau
+                const items = Array.isArray(response) ? response : [];
+                console.log('Store loadRepas processed items:', items);
+
                 update(state => ({ ...state, items, loading: false }));
             } catch (error) {
-                console.error('Erreur chargement repas:', error);
+                console.error('Store loadRepas error:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
             }
         },
