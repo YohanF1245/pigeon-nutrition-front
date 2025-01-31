@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     import { produits } from '$lib/stores/produits';
     import ProduitCard from '$lib/components/produits/ProduitCard.svelte';
     import Toast from '$lib/components/common/Toast.svelte';
