@@ -1,9 +1,0 @@
-{
-	"/": [],
-	"/auth/login": [],
-	"/auth/register": [],
-	"/produits": [],
-	"/produits/nouveau": [],
-	"/produits/[id]": [],
-	"/produits/[id]/stock": []
-}
