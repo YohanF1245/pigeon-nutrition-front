@@ -9,13 +9,9 @@ async function fetchWithAuth(endpoint, options = {}) {
     };
 
     const url = `${API_BASE_URL}${endpoint}`;
-    console.log('🚀 Request:', {
-        url,
+    console.log('🚀 Sending request to:', url, {
         method: options.method || 'GET',
-        headers: {
-            ...defaultHeaders,
-            ...options.headers
-        },
+        headers: defaultHeaders,
         body: options.body
     });
 
@@ -28,19 +24,18 @@ async function fetchWithAuth(endpoint, options = {}) {
             }
         });
 
+        console.log('📥 Response status:', response.status);
+        
         if (!response.ok) {
             const text = await response.text();
-            console.error('Response error:', text);
+            console.error('❌ Response error:', text);
             throw new Error(text || 'Une erreur est survenue');
         }
 
         const contentType = response.headers.get('content-type');
         if (contentType && contentType.includes('application/json')) {
             const data = await response.json();
-            console.log('📥 Response:', {
-                status: response.status,
-                data
-            });
+            console.log('📦 Response data:', data);
             return data;
         } else {
             const text = await response.text();
@@ -48,7 +43,7 @@ async function fetchWithAuth(endpoint, options = {}) {
             throw new Error('Réponse invalide du serveur');
         }
     } catch (error) {
-        console.error('❌ API Error:', error);
+        console.error('❌ Fetch error:', error);
         throw error;
     }
 }
