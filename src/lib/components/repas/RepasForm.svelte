@@ -10,8 +10,10 @@
     let nom = '';
     let date = '';
     let description = '';
-    let selectedProduits = [];
+    let selectedProduit = '';
+    let quantite = 0;
     let compositions = [];
+    let error = '';
 
     onMount(async () => {
         await produits.loadProduits();
@@ -37,6 +39,15 @@
     });
 
     function handleSubmit() {
+        if (!nom) {
+            error = "Le nom est requis";
+            return;
+        }
+        if (compositions.length === 0) {
+            error = "Ajoutez au moins un produit";
+            return;
+        }
+
         const formData = {
             nom,
             date: new Date(date).toISOString(),
@@ -57,9 +68,9 @@
         const produit = $produits.items.find(p => p.id === selectedProduit);
         if (!produit) return;
 
-        repas.compositions = [...repas.compositions, {
+        compositions = [...compositions, {
             produit_id: selectedProduit,
-            produit, // Pour l'affichage
+            produit,
             quantite: Number(quantite)
         }];
 
@@ -68,7 +79,7 @@
     }
 
     function removeComposition(index) {
-        repas.compositions = repas.compositions.filter((_, i) => i !== index);
+        compositions = compositions.filter((_, i) => i !== index);
     }
 </script>
 
@@ -149,9 +160,9 @@
             </div>
         </div>
 
-        {#if repas.compositions.length > 0}
+        {#if compositions.length > 0}
             <ul class="space-y-2">
-                {#each repas.compositions as composition, index}
+                {#each compositions as composition, index}
                     <li class="flex justify-between items-center p-2 bg-gray-50 rounded">
                         <span>{composition.produit.nom}</span>
                         <div class="flex items-center space-x-4">
