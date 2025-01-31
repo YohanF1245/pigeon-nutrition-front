@@ -61,7 +61,18 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 console.log('Creating repas:', repas);
-                const response = await api.repas.create(repas);
+                // Formatage des données pour l'API
+                const repasData = {
+                    nom: repas.nom,
+                    date: repas.date,
+                    description: repas.description,
+                    compositions: repas.compositions.map(comp => ({
+                        produit_id: comp.produit_id,
+                        quantite: parseFloat(comp.quantite)
+                    }))
+                };
+
+                const response = await api.repas.create(repasData);
                 console.log('Created repas response:', response);
 
                 if (!response || !response.repas) {
@@ -121,7 +132,18 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 console.log('Updating repas:', { id, repas });
-                const response = await api.repas.update(id, repas);
+                // Formatage des données pour l'API
+                const repasData = {
+                    nom: repas.nom,
+                    date: repas.date,
+                    description: repas.description,
+                    compositions: repas.compositions.map(comp => ({
+                        produit_id: comp.produit_id,
+                        quantite: parseFloat(comp.quantite)
+                    }))
+                };
+
+                const response = await api.repas.update(id, repasData);
                 console.log('Update response:', response);
 
                 if (!response || !response.repas) {
