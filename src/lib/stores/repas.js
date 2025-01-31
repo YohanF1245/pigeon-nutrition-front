@@ -35,7 +35,10 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 const response = await api.repas.getAll();
-                update(state => ({ ...state, items: response.data || [], loading: false }));
+                console.log('Response from API:', response);
+                const items = Array.isArray(response) ? response : [];
+                console.log('Processed items:', items);
+                update(state => ({ ...state, items, loading: false }));
             } catch (error) {
                 console.error('Erreur chargement repas:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
