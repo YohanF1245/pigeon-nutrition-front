@@ -11,6 +11,7 @@
     let success = '';
     let showConfirmDelete = false;
     let repasToDelete = null;
+    let filteredRepas = [];
 
     onMount(() => {
         loadRepas();
@@ -43,9 +44,13 @@
 
     $: {
         console.log('Filtered repas input:', $repas.items); // Debug log
-        filteredRepas = Array.isArray($repas.items) 
-            ? $repas.items.filter(r => r.nom.toLowerCase().includes(searchQuery.toLowerCase()))
-            : [];
+        if ($repas && Array.isArray($repas.items)) {
+            filteredRepas = $repas.items.filter(r => 
+                r.nom.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        } else {
+            filteredRepas = [];
+        }
         console.log('Filtered repas output:', filteredRepas); // Debug log
     }
 </script>
