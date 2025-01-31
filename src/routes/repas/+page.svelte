@@ -1,13 +1,16 @@
 <script>
     import { onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     import { repas } from '$lib/stores/repas';
     import RepasCard from '$lib/components/repas/RepasCard.svelte';
+    import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
     import Toast from '$lib/components/common/Toast.svelte';
-    import { goto } from '$app/navigation';
 
     let searchQuery = '';
     let error = '';
     let success = '';
+    let showConfirmDelete = false;
+    let repasToDelete = null;
 
     onMount(() => {
         loadRepas();
@@ -21,14 +24,18 @@
         }
     }
 
-    async function handleDelete(id) {
-        if (confirm('Êtes-vous sûr de vouloir supprimer ce repas ?')) {
-            try {
-                await repas.deleteRepas(id);
-                success = 'Repas supprimé avec succès';
-            } catch (e) {
-                error = "Erreur lors de la suppression du repas";
-            }
+    function confirmDelete(id) {
+        repasToDelete = id;
+        showConfirmDelete = true;
+    }
+
+    async function handleDelete() {
+        try {
+            await repas.deleteRepas(repasToDelete);
+            success = 'Repas supprimé avec succès';
+            repasToDelete = null;
+        } catch (e) {
+            error = "Erreur lors de la suppression du repas";
         }
     }
 
@@ -68,12 +75,20 @@
                 <RepasCard
                     {repas}
                     on:edit={() => goto(`/repas/${repas.id}`)}
-                    on:delete={() => handleDelete(repas.id)}
+                    on:delete={() => confirmDelete(repas.id)}
                 />
             {/each}
         </div>
     {/if}
 </div>
+
+<ConfirmDialog
+    bind:show={showConfirmDelete}
+    title="Supprimer le repas"
+    message="Êtes-vous sûr de vouloir supprimer ce repas ? Cette action est irréversible."
+    on:confirm={handleDelete}
+    on:cancel={() => repasToDelete = null}
+/>
 
 <Toast
     type="error"
