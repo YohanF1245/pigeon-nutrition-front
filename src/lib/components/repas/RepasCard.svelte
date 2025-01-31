@@ -17,47 +17,22 @@
         <div class="cursor-pointer" on:click={() => showModal = true}>
             <h3 class="text-lg font-medium text-onyx">{repas.nom}</h3>
             <p class="text-sm text-gray-500">{formattedDate}</p>
-            {#if repas.description}
-                <p class="text-sm mt-2 text-gray-600">{repas.description}</p>
-            {/if}
-        </div>
-        <div class="flex space-x-2">
-            <button 
-                class="btn-secondary p-2"
-                on:click={() => dispatch('edit')}
-            >
-                Modifier
-            </button>
-            <button 
-                class="btn-danger p-2"
-                on:click={() => dispatch('delete')}
-            >
-                Supprimer
-            </button>
         </div>
     </div>
 
     {#if repas.compositions && repas.compositions.length > 0}
-        <div class="mt-4">
-            <h4 class="text-sm font-medium mb-2">Composition :</h4>
-            <ul class="space-y-1">
-                {#each repas.compositions as composition}
-                    <li class="text-sm flex justify-between items-center py-1 px-2 bg-gray-50 rounded">
-                        <div>
-                            <span class="font-medium">{composition.produit?.nom || 'Produit inconnu'}</span>
-                            <span class="text-gray-500 text-xs ml-2">
-                                ({composition.quantite} {composition.produit?.unite_stock || 'unités'})
-                            </span>
-                        </div>
-                        {#if composition.produit}
-                            <div class="text-xs text-gray-500">
-                                {Math.round(composition.produit.calories * composition.quantite / 100)} kcal
-                            </div>
-                        {/if}
-                    </li>
-                {/each}
-            </ul>
-        </div>
+        <ul class="space-y-1 mb-4">
+            {#each repas.compositions as composition}
+                <li class="text-sm flex justify-between items-center py-1">
+                    <span class="font-medium">{composition.produit?.nom || 'Produit inconnu'}</span>
+                    <span class="text-gray-500">
+                        {composition.quantite} {composition.produit?.unite_stock || 'unités'}
+                    </span>
+                </li>
+            {/each}
+        </ul>
+    {:else}
+        <p class="text-sm text-gray-500 italic mb-4">Aucun produit dans ce repas</p>
     {/if}
 
     {#if repas.statistiques?.length > 0}
@@ -72,6 +47,21 @@
             </div>
         </div>
     {/if}
+
+    <div class="flex justify-end space-x-2 mt-4 pt-3 border-t">
+        <button 
+            class="btn-secondary px-3 py-1"
+            on:click={() => dispatch('edit')}
+        >
+            Modifier
+        </button>
+        <button 
+            class="btn-danger px-3 py-1"
+            on:click={() => dispatch('delete')}
+        >
+            Supprimer
+        </button>
+    </div>
 </div>
 
 {#if showModal}

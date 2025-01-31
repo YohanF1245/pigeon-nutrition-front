@@ -14,7 +14,7 @@
     }
 
     // Calcul des totaux
-    $: totals = repas.compositions.reduce((acc, comp) => {
+    $: totals = (repas.compositions || []).reduce((acc: any, comp: any) => {
         const ratio = comp.quantite / 100;
         return {
             calories: acc.calories + (comp.produit?.calories || 0) * ratio,
@@ -38,43 +38,50 @@
         </div>
 
         <!-- Tableau des ingrédients -->
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-gray-50">
-                        <th class="text-left p-2">Ingrédient</th>
-                        <th class="text-right p-2">Quantité</th>
-                        <th class="text-right p-2">Calories</th>
-                        <th class="text-right p-2">Protéines</th>
-                        <th class="text-right p-2">Glucides</th>
-                        <th class="text-right p-2">Lipides</th>
-                        <th class="text-right p-2">Sel</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {#each repas.compositions as comp}
-                        <tr class="border-b">
-                            <td class="p-2">{comp.produit?.nom || 'Produit inconnu'}</td>
-                            <td class="text-right p-2">{comp.quantite} {comp.produit?.unite_stock}</td>
-                            <td class="text-right p-2">{Math.round((comp.produit?.calories || 0) * comp.quantite / 100)} kcal</td>
-                            <td class="text-right p-2">{((comp.produit?.proteines || 0) * comp.quantite / 100).toFixed(1)}g</td>
-                            <td class="text-right p-2">{((comp.produit?.glucides || 0) * comp.quantite / 100).toFixed(1)}g</td>
-                            <td class="text-right p-2">{((comp.produit?.matieres_grasses || 0) * comp.quantite / 100).toFixed(1)}g</td>
-                            <td class="text-right p-2">{((comp.produit?.sel || 0) * comp.quantite / 100).toFixed(2)}g</td>
+        {#if repas.compositions && repas.compositions.length > 0}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="text-left p-2">Ingrédient</th>
+                            <th class="text-right p-2">Quantité</th>
+                            <th class="text-right p-2">Calories</th>
+                            <th class="text-right p-2">Protéines</th>
+                            <th class="text-right p-2">Glucides</th>
+                            <th class="text-right p-2">Lipides</th>
+                            <th class="text-right p-2">Sel</th>
                         </tr>
-                    {/each}
-                    <!-- Ligne des totaux -->
-                    <tr class="bg-lavender-web bg-opacity-50 font-medium">
-                        <td class="p-2" colspan="2">Total</td>
-                        <td class="text-right p-2">{Math.round(totals.calories)} kcal</td>
-                        <td class="text-right p-2">{totals.proteines.toFixed(1)}g</td>
-                        <td class="text-right p-2">{totals.glucides.toFixed(1)}g</td>
-                        <td class="text-right p-2">{totals.lipides.toFixed(1)}g</td>
-                        <td class="text-right p-2">{totals.sel.toFixed(2)}g</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        {#each repas.compositions as comp}
+                            <tr class="border-b">
+                                <td class="p-2">{comp.produit?.nom || 'Produit inconnu'}</td>
+                                <td class="text-right p-2">{comp.quantite} {comp.produit?.unite_stock}</td>
+                                <td class="text-right p-2">{Math.round((comp.produit?.calories || 0) * comp.quantite / 100)} kcal</td>
+                                <td class="text-right p-2">{((comp.produit?.proteines || 0) * comp.quantite / 100).toFixed(1)}g</td>
+                                <td class="text-right p-2">{((comp.produit?.glucides || 0) * comp.quantite / 100).toFixed(1)}g</td>
+                                <td class="text-right p-2">{((comp.produit?.matieres_grasses || 0) * comp.quantite / 100).toFixed(1)}g</td>
+                                <td class="text-right p-2">{((comp.produit?.sel || 0) * comp.quantite / 100).toFixed(2)}g</td>
+                            </tr>
+                        {/each}
+                        <!-- Ligne des totaux -->
+                        <tr class="bg-lavender-web bg-opacity-50 font-medium">
+                            <td class="p-2" colspan="2">Total</td>
+                            <td class="text-right p-2">{Math.round(totals.calories)} kcal</td>
+                            <td class="text-right p-2">{totals.proteines.toFixed(1)}g</td>
+                            <td class="text-right p-2">{totals.glucides.toFixed(1)}g</td>
+                            <td class="text-right p-2">{totals.lipides.toFixed(1)}g</td>
+                            <td class="text-right p-2">{totals.sel.toFixed(2)}g</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        {:else}
+            <div class="text-center py-8 text-gray-500">
+                <p>Aucun produit n'a été ajouté à ce repas.</p>
+                <p class="text-sm mt-2">Cliquez sur "Modifier" pour ajouter des produits.</p>
+            </div>
+        {/if}
 
         <!-- Footer -->
         <div class="mt-6 flex justify-end">
