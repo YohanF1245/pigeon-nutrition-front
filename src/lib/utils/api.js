@@ -90,7 +90,16 @@ export const api = {
         getStocksBas: () => fetchWithAuth('/produits/stocks/bas')
     },
     repas: {
-        getAll: () => fetchWithAuth('/repas'),
+        getAll: async () => {
+            try {
+                const response = await fetchWithAuth('/repas');
+                console.log('API getAll repas response:', response);
+                return response;
+            } catch (error) {
+                console.error('API getAll repas error:', error);
+                throw error;
+            }
+        },
         getOne: (id) => fetchWithAuth(`/repas/${id}`),
         create: (repas) => fetchWithAuth('/repas', {
             method: 'POST',
