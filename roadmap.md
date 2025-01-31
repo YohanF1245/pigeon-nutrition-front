@@ -45,9 +45,6 @@
 - ❌ Supprimer un produit de la liste de courses
 - ❌ Vider la liste de courses
 
-
--
-
 ## 🔴 Phase 6 : Fonctionnalités Avancées (À faire)
 - ❌ Suggestions de produits
 - ❌ Planification des repas
