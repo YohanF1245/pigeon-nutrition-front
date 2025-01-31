@@ -61,12 +61,15 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 console.log('Creating repas:', repas);
-                const newRepas = await api.repas.create(repas);
-                console.log('Created repas:', newRepas);
+                const response = await api.repas.create(repas);
+                console.log('Created repas response:', response);
 
-                if (!newRepas || !newRepas.id) {
-                    throw new Error('Le repas créé est invalide');
+                if (!response || !response.repas) {
+                    throw new Error('Réponse invalide de l\'API');
                 }
+
+                const newRepas = response.repas;
+                console.log('Created repas:', newRepas);
 
                 update(state => ({
                     ...state,
