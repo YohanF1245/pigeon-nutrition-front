@@ -34,61 +34,39 @@ function createRepasStore() {
         loadRepas: async () => {
             update(state => ({ ...state, loading: true, error: null }));
             try {
+                console.log('Loading repas...');
                 const response = await api.repas.getAll();
-                console.log('Store loadRepas response:', response);
+                console.log('Loaded repas:', response);
 
-                // Vérification de la réponse
                 if (!response) {
                     throw new Error('Aucune donnée reçue de l\'API');
                 }
 
-                // S'assurer que la réponse est un tableau
-                const items = Array.isArray(response) ? response : [];
-                console.log('Store loadRepas processed items:', items);
+                const items = response.repas || [];
+                if (!Array.isArray(items)) {
+                    throw new Error('Format de données invalide');
+                }
+                
+                console.log('Processed repas items:', items);
 
                 update(state => ({ ...state, items, loading: false }));
+                return items;
             } catch (error) {
-                console.error('Store loadRepas error:', error);
+                console.error('Error loading repas:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
+                throw error;
             }
         },
         addRepas: async (repas) => {
             update(state => ({ ...state, loading: true, error: null }));
             try {
-                // Debug log
-                console.log('Repas à créer:', repas);
-                
-                // Vérification des compositions
-                if (!repas.compositions || !Array.isArray(repas.compositions)) {
-                    throw new Error('Les compositions sont requises');
+                console.log('Creating repas:', repas);
+                const newRepas = await api.repas.create(repas);
+                console.log('Created repas:', newRepas);
+
+                if (!newRepas || !newRepas.id) {
+                    throw new Error('Le repas créé est invalide');
                 }
-
-                // Calcul des valeurs nutritionnelles
-                const nutritionalValues = calculateNutritionalValues(repas.compositions);
-                console.log('Valeurs nutritionnelles calculées:', nutritionalValues);
-                
-                // Préparation des données
-                const repasToCreate = {
-                    nom: repas.nom,
-                    date: repas.date,
-                    description: repas.description || '',
-                    compositions: repas.compositions.map(comp => ({
-                        produit_id: comp.produit_id,
-                        quantite: comp.quantite
-                    })),
-                    statistiques: [{
-                        calories_total: nutritionalValues.calories_total,
-                        glucides_total: nutritionalValues.glucides_total,
-                        proteines_total: nutritionalValues.proteines_total,
-                        lipides_total: nutritionalValues.lipides_total,
-                        sel_total: nutritionalValues.sel_total
-                    }]
-                };
-
-                console.log('Repas préparé pour l\'API:', repasToCreate);
-
-                const newRepas = await api.repas.create(repasToCreate);
-                console.log('Réponse de l\'API:', newRepas);
 
                 update(state => ({
                     ...state,
@@ -97,7 +75,7 @@ function createRepasStore() {
                 }));
                 return newRepas;
             } catch (error) {
-                console.error('Erreur création repas:', error);
+                console.error('Error creating repas:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
                 throw error;
             }
@@ -116,10 +94,40 @@ function createRepasStore() {
                 throw error;
             }
         },
+        getRepas: async (id) => {
+            update(state => ({ ...state, loading: true, error: null }));
+            try {
+                console.log('Loading single repas:', id);
+                const response = await api.repas.getOne(id);
+                console.log('Loaded single repas:', response);
+
+                if (!response || !response.repas) {
+                    throw new Error('Repas non trouvé');
+                }
+
+                const repas = response.repas;
+                console.log('Processed single repas:', repas);
+                return repas;
+            } catch (error) {
+                console.error('Error loading single repas:', error);
+                update(state => ({ ...state, error: error.message, loading: false }));
+                throw error;
+            }
+        },
         updateRepas: async (id, repas) => {
             update(state => ({ ...state, loading: true, error: null }));
             try {
-                const updatedRepas = await api.repas.update(id, repas);
+                console.log('Updating repas:', { id, repas });
+                const response = await api.repas.update(id, repas);
+                console.log('Update response:', response);
+
+                if (!response || !response.repas) {
+                    throw new Error('Erreur lors de la mise à jour du repas');
+                }
+
+                const updatedRepas = response.repas;
+                console.log('Updated repas:', updatedRepas);
+
                 update(state => ({
                     ...state,
                     items: state.items.map(r => r.id === id ? updatedRepas : r),
@@ -127,6 +135,7 @@ function createRepasStore() {
                 }));
                 return updatedRepas;
             } catch (error) {
+                console.error('Error updating repas:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
                 throw error;
             }
