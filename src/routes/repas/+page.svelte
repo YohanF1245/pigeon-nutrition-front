@@ -19,11 +19,12 @@
 
     async function loadRepas() {
         try {
+            console.log('Page loadRepas: starting');
             await repas.loadRepas();
-            console.log('Store state:', $repas);
+            console.log('Page loadRepas: completed, store state:', $repas);
         } catch (e) {
-            console.error('Error loading repas:', e);
-            error = "Erreur lors du chargement des repas";
+            console.error('Page loadRepas error:', e);
+            error = e.message || "Erreur lors du chargement des repas";
         }
     }
 
@@ -43,11 +44,14 @@
     }
 
     $: {
-        if ($repas && $repas.items) {
+        console.log('Filtering repas, store state:', $repas);
+        if ($repas && Array.isArray($repas.items)) {
             filteredRepas = $repas.items.filter(r => 
                 r && r.nom && r.nom.toLowerCase().includes((searchQuery || '').toLowerCase())
             );
+            console.log('Filtered repas:', filteredRepas);
         } else {
+            console.warn('Invalid repas items:', $repas?.items);
             filteredRepas = [];
         }
     }
@@ -72,7 +76,11 @@
 
     {#if $repas.loading}
         <div class="text-center py-8">
-            <p>Chargement...</p>
+            <p>Chargement des repas...</p>
+        </div>
+    {:else if $repas.error}
+        <div class="bg-rose-taupe bg-opacity-10 p-4 rounded-lg mb-4">
+            <p class="text-rose-taupe">Erreur : {$repas.error}</p>
         </div>
     {:else if filteredRepas.length === 0}
         <div class="card text-center py-8">
