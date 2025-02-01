@@ -61,15 +61,11 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 console.log('Creating repas:', repas);
-                // Formatage des données pour l'API
+                // 1. Créer d'abord le repas sans les compositions
                 const repasData = {
                     nom: repas.nom,
                     date: repas.date,
-                    description: repas.description,
-                    compositions: repas.compositions.map(comp => ({
-                        produit_id: comp.produit_id,
-                        quantite: parseFloat(comp.quantite)
-                    }))
+                    description: repas.description
                 };
 
                 const response = await api.repas.create(repasData);
@@ -82,12 +78,26 @@ function createRepasStore() {
                 const newRepas = response.repas;
                 console.log('Created repas:', newRepas);
 
+                // 2. Si le repas a des compositions, les ajouter
+                if (repas.compositions && repas.compositions.length > 0) {
+                    console.log('Adding compositions:', repas.compositions);
+                    await api.repas.addComposition(newRepas.id, {
+                        compositions: repas.compositions.map(comp => ({
+                            produit_id: comp.produit_id,
+                            quantite: Number(comp.quantite)
+                        }))
+                    });
+                }
+
+                // 3. Recharger le repas complet
+                const updatedRepas = await api.repas.getOne(newRepas.id);
+                
                 update(state => ({
                     ...state,
-                    items: [...state.items, newRepas],
+                    items: [...state.items, updatedRepas.repas],
                     loading: false
                 }));
-                return newRepas;
+                return updatedRepas.repas;
             } catch (error) {
                 console.error('Error creating repas:', error);
                 update(state => ({ ...state, error: error.message, loading: false }));
@@ -132,24 +142,28 @@ function createRepasStore() {
             update(state => ({ ...state, loading: true, error: null }));
             try {
                 console.log('Updating repas:', { id, repas });
-                // Formatage des données pour l'API
+                // 1. Mettre à jour les infos du repas
                 const repasData = {
                     nom: repas.nom,
                     date: repas.date,
-                    description: repas.description,
-                    compositions: repas.compositions.map(comp => ({
-                        produit_id: comp.produit_id,
-                        quantite: parseFloat(comp.quantite)
-                    }))
+                    description: repas.description
                 };
 
-                const response = await api.repas.update(id, repasData);
-                console.log('Update response:', response);
+                await api.repas.update(id, repasData);
 
-                if (!response || !response.repas) {
-                    throw new Error('Erreur lors de la mise à jour du repas');
+                // 2. Mettre à jour les compositions
+                if (repas.compositions && repas.compositions.length > 0) {
+                    console.log('Updating compositions:', repas.compositions);
+                    await api.repas.updateCompositions(id, {
+                        compositions: repas.compositions.map(comp => ({
+                            produit_id: comp.produit_id,
+                            quantite: Number(comp.quantite)
+                        }))
+                    });
                 }
 
+                // 3. Recharger le repas complet
+                const response = await api.repas.getOne(id);
                 const updatedRepas = response.repas;
                 console.log('Updated repas:', updatedRepas);
 
