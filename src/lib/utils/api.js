@@ -96,14 +96,20 @@ export const api = {
             }
         },
         getOne: (id) => fetchWithAuth(`/repas/${id}`),
-        create: (repas) => fetchWithAuth('/repas', {
-            method: 'POST',
-            body: JSON.stringify(repas)
-        }),
-        update: (id, repas) => fetchWithAuth(`/repas/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(repas)
-        }),
+        create: async (data) => {
+            console.log('API create repas data:', data);
+            return fetchWithAuth('/repas', {
+                method: 'POST',
+                body: JSON.stringify(data)
+            });
+        },
+        update: async (id, data) => {
+            console.log('API update repas data:', { id, data });
+            return fetchWithAuth(`/repas/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(data)
+            });
+        },
         delete: (id) => fetchWithAuth(`/repas/${id}`, {
             method: 'DELETE'
         }),
