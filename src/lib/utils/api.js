@@ -113,18 +113,6 @@ export const api = {
         delete: (id) => fetchWithAuth(`/repas/${id}`, {
             method: 'DELETE'
         }),
-        addComposition: (id, compositions) => fetchWithAuth(`/repas/${id}/compositions`, {
-            method: 'POST',
-            body: JSON.stringify(compositions)
-        }),
-        updateCompositions: (id, compositions) => fetchWithAuth(`/repas/${id}/compositions`, {
-            method: 'PUT',
-            body: JSON.stringify(compositions)
-        }),
-        deleteCompositions: (id, compositionIds) => fetchWithAuth(`/repas/${id}/compositions`, {
-            method: 'DELETE',
-            body: JSON.stringify({ composition_ids: compositionIds })
-        }),
         getStatistiques: (id) => fetchWithAuth(`/repas/${id}/statistiques`)
     }
 }; 
